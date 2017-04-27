@@ -67,7 +67,7 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 		return -1;
 	}
 	while((a=leShort(&s, arq_entrada))>0){
-		if(s>=0xD800){	//tem dois unicodes
+		if(s>=0xD800){	//tem dois code units
 			printf("1:%x ", s);
 			s-=0xD800;
 			ret = s;
@@ -81,7 +81,7 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 			ret+= s;
 			ret+= 0x10000;
 		}
-		else		//so tem um unicode
+		else		//so tem um code units
 			ret = s;
 		//ESCREVER -> transformar ret (unicode) em utf_8
 
