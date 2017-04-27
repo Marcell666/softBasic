@@ -81,7 +81,7 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 			ret+= s;
 			ret+= 0x10000;
 		}
-		else		//so tem um code units
+		else		//so tem um code unit
 			ret = s;
 		//ESCREVER -> transformar ret (unicode) em utf_8
 
