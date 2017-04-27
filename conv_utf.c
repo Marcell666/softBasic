@@ -55,10 +55,9 @@ int contaUns(unsigned char c){
 int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 	int a=0;
 	unsigned short s=0;
-	unsigned short next=0;
 	int ret=0;
 	
-	fread(&s,1,1,arq_entrada); 
+	leShort(&s, arq_entrada);
 	if(s!=0xFEFF){
 		if(s==0xFFFE)
 			fprintf(stderr, "Erro! Arquivo Little-Endian!");
@@ -81,6 +80,8 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 		else		//so tem um unicode
 			ret = s;
 		//ESCREVER -> transformar ret (unicode) em utf_8
+
+		printf("%x ", s);
 	}
 	if(a==-1){ 
 		fprintf(stderr, "Erro de leitura! Arquivo corrompido!");
