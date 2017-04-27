@@ -53,35 +53,33 @@ int contaUns(unsigned char c){
 
 
 int utf16_8(FILE *arq_entrada, FILE *arq_saida){
-	int a=0, b=0;
+	int a=0;
 	unsigned short s=0;
 	unsigned short next=0;
 	int ret=0;
 	
-	fread(&s,1,1,arq_entrada); // nova leitura 
-	//fscanf(arq_entrada, "%hu", &s);
-	if(s!=0xFFFE && s!=0xFEFF){
-		fprintf(stderr, "Erro! BOM inválido/ausente!");
+	fread(&s,1,1,arq_entrada); 
+	if(s!=0xFEFF){
+		if(s==0xFFFE)
+			fprintf(stderr, "Erro! Arquivo Little-Endian!");
+		else
+			fprintf(stderr, "Erro! BOM inválido/ausente!");
 		return -1;
 	}
-	
-
 	while((a=leShort(&s, arq_entrada))>0){
-		
-		b=leShort(&next, arq_entrada);
-		if(b==-1){ 
-			fprintf(stderr, "Erro de leitura! Arquivo corrompido!");
-			return -1;
+		if(s>=0xD800){	//tem dois unicodes
+			s-=0xD800;
+			ret = s;
+			ret = ret<<10;
+			if(leShort(&s, arq_entrada)==-1){ 
+				fprintf(stderr, "Erro de leitura! Arquivo corrompido!");
+				return -1;
+			}
+			s-= 0xDC00;
+			ret+= s;
 		}
-		if(b>0 && (next>>10)&1)
-			ret=((s&0x3FF)<<10)+(next&0x3FF);
-		else{
-			if (b>0)
-				fseek(arq_entrada,-1,SEEK_CUR);
-
-			ret=s&0x3FF;
-			
-		}
+		else		//so tem um unicode
+			ret = s;
 		//ESCREVER -> transformar ret (unicode) em utf_8
 	}
 	if(a==-1){ 
