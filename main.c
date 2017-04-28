@@ -4,7 +4,7 @@
 
 int main(void){
 	FILE *f, *f2;
-	f = fopen("asd.txt", "rb");
+	f = fopen("utf16_peq.txt", "rb");
 	f2 = fopen("asd3.txt", "wb");
 	
 	if(f==NULL){
@@ -12,13 +12,10 @@ int main(void){
 		exit(1);
 	}
 
-	utf8_16(f, f2);
+	utf16_8(f, f2);
 
 	fclose(f);
 	fclose(f2);
-	printf("\n");
-	//printf("%d", contaUns((char) 0xE1));
-
 	printf("\n");
 	
 	return 0;
