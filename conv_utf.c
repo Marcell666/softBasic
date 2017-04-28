@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "conv_utf.h"
 
+/*Bruce Marcellino 1613172 3WB*/
+/*Bruno Marinho 3WB*/
 
 int utf8_16(FILE *arq_entrada, FILE *arq_saida){
 	unsigned int uniC;
