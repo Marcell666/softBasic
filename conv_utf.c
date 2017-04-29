@@ -1,15 +1,25 @@
+/*Bruce Marcellino 1613172 3WB*/
+/*Bruno Marinho 1613071 3WB*/
+
 #include <stdio.h>
 #include "conv_utf.h"
 
-/*Bruce Marcellino 1613172 3WB*/
-/*Bruno Marinho 1613071 3WB*/
+int contaUns(unsigned char c);
+int leShort(unsigned short *s, FILE *f);
+int leMaisDeUmByte(FILE *f, unsigned char c, int n);
 
 int utf8_16(FILE *arq_entrada, FILE *arq_saida){
 	unsigned int uniC;
 	unsigned char c = 0xFE;
-	fwrite(&c, 1, 1, arq_saida);
+	if(fwrite(&c, 1, 1, arq_saida) != 1){
+		fprintf(stderr, "Erro de gravação!");
+		return -1;
+	};
 	c = 0xFF;
-	fwrite(&c, 1, 1, arq_saida);
+	if(fwrite(&c, 1, 1, arq_saida) != 1){
+		fprintf(stderr, "Erro de gravação!");
+		return -1;
+	}
 	while(fread(&c,1,1,arq_entrada)>0){
 		uniC = leMaisDeUmByte(arq_entrada,c, contaUns(c));
 		if(uniC==-1){ fprintf(stderr, "Erro na leitura! Arquivo corrompido");
@@ -17,35 +27,51 @@ int utf8_16(FILE *arq_entrada, FILE *arq_saida){
 		}
 		if(uniC<=0xFFFF){
 			c = uniC>>8;
-			fwrite(&c, 1, 1, arq_saida);
+			
+			if(fwrite(&c, 1, 1, arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 			c = uniC;
-			fwrite(&c, 1, 1, arq_saida);
+			if(fwrite(&c, 1, 1, arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 		}
 		else if(uniC<=0x10FFFF){
 			uniC-=0x10000;
 			
 			c = uniC>>18;
 			c +=0xD8;
-			fwrite(&c, 1, 1, arq_saida);
+			if(fwrite(&c, 1, 1, arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 			c = (uniC>>10);	
-			fwrite(&c, 1, 1, arq_saida);
+			if(fwrite(&c, 1, 1, arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 			c = (uniC>>8)&0x03;
 			c+=0xDC;
-			fwrite(&c, 1, 1, arq_saida);
+			if(fwrite(&c, 1, 1, arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 			c=uniC;
-			fwrite(&c, 1, 1, arq_saida);
+			if(fwrite(&c, 1, 1, arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 		}
 	}
 	return 0;
 }
 
-
-//https://github.com/Marcell666/softBasic/invitations
-
 int leMaisDeUmByte(FILE *f, unsigned char c, int n){//n= {2,3,4}
 	int ret;
 	int i;
-	int e;
+
 	ret=c;
 	if(n==2) ret-=0xC0;
 	else if(n==3) ret-=0xE0;
@@ -104,8 +130,10 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 		if (ret <= 0x007F) //primeira faixa
 		{
 			c1 = ret;
-			printf("c1:%x ", c1);
-			fwrite(&c1,1,1,arq_saida);
+			if(fwrite(&c1,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 		
 		}
 		else if (ret <= 0x07FF) //segunda faixa
@@ -115,8 +143,14 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 			c2 = 0x80|ret;
 			c2 = 0xBF&c2;
 			// escreve 2 bytes
-			fwrite(&c1,1,1,arq_saida);
-			fwrite(&c2,1,1,arq_saida);
+			if(fwrite(&c1,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
+			if(fwrite(&c2,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 		}
 		else if (ret <= 0xFFFF) //terceira faixa
 		{
@@ -127,9 +161,18 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 			c3 = 0x3F&ret;
 			c3 = c3|0x80;
 			// escreve 3 bytes
-			fwrite(&c1,1,1,arq_saida);
-			fwrite(&c2,1,1,arq_saida);
-			fwrite(&c3,1,1,arq_saida);
+			if(fwrite(&c1,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
+			if(fwrite(&c2,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
+			if(fwrite(&c3,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 		}
 		else if (ret <= 0x10FFFF)
 		{
@@ -143,10 +186,22 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 			c4 = 0x03f&ret;
 			c4 = c4|0x080;
 			// escreve 4 bytes
-			fwrite(&c1,1,1,arq_saida);
-			fwrite(&c2,1,1,arq_saida);
-			fwrite(&c3,1,1,arq_saida);
-			fwrite(&c4,1,1,arq_saida);
+			if(fwrite(&c1,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
+			if(fwrite(&c2,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
+			if(fwrite(&c3,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
+			if(fwrite(&c4,1,1,arq_saida) != 1){
+				fprintf(stderr, "Erro de gravação!");
+				return -1;
+			}
 		}
 		
 	}
@@ -154,7 +209,7 @@ int utf16_8(FILE *arq_entrada, FILE *arq_saida){
 		fprintf(stderr, "Erro de leitura! Arquivo corrompido!");
 		return -1;
 	}
-	return ret;
+	return 0;
 }
 
 int leShort(unsigned short *s, FILE *f){
